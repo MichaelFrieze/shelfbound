@@ -8,7 +8,7 @@ export default async function Home() {
   const queryClient = getQueryClient();
   const hello = await queryClient.fetchQuery(
     trpc.post.hello.queryOptions({
-      text: "from tRPC",
+      text: "from tRPC with prefetch",
     }),
   );
 
@@ -53,6 +53,8 @@ export default async function Home() {
         >
           <LatestPost />
         </TRPCPrefetch>
+
+        {/* <LatestPost /> */}
       </div>
     </main>
   );

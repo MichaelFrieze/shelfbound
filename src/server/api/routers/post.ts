@@ -35,6 +35,7 @@ export const postRouter = createTRPCRouter({
     }),
 
   getLatest: publicProcedure.query(() => {
+    console.log("getLatest: ", { posts });
     return posts.at(-1) ?? null;
   }),
 });
