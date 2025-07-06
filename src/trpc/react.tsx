@@ -1,28 +1,37 @@
 "use client";
 
-import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
-import { httpBatchStreamLink, loggerLink } from "@trpc/client";
-import { createTRPCReact } from "@trpc/react-query";
+import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  createTRPCClient,
+  httpBatchStreamLink,
+  loggerLink,
+} from "@trpc/client";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
+import { createTRPCContext } from "@trpc/tanstack-react-query";
 import { useState } from "react";
 import SuperJSON from "superjson";
 
-import { type AppRouter } from "@/server/api/root";
-import { createQueryClient } from "./query-client";
+import { makeQueryClient } from "@/trpc/query-client";
+import { type AppRouter } from "@/trpc/root";
 
-let clientQueryClientSingleton: QueryClient | undefined = undefined;
-const getQueryClient = () => {
+let browserQueryClient: QueryClient | undefined = undefined;
+function getQueryClient() {
   if (typeof window === "undefined") {
     // Server: always make a new query client
-    return createQueryClient();
+    return makeQueryClient();
+  } else {
+    // Browser: make a new query client if we don't already have one
+    // This is very important, so we don't re-make a new client if React
+    // suspends during the initial render. This may not be needed if we
+    // have a suspense boundary BELOW the creation of the query client
+    // if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    browserQueryClient ??= makeQueryClient();
+    return browserQueryClient;
   }
-  // Browser: use singleton pattern to keep the same query client
-  clientQueryClientSingleton ??= createQueryClient();
+}
 
-  return clientQueryClientSingleton;
-};
-
-export const api = createTRPCReact<AppRouter>();
+export const { TRPCProvider, useTRPC, useTRPCClient } =
+  createTRPCContext<AppRouter>();
 
 /**
  * Inference helper for inputs.
@@ -42,7 +51,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   const [trpcClient] = useState(() =>
-    api.createClient({
+    createTRPCClient<AppRouter>({
       links: [
         loggerLink({
           enabled: (op) =>
@@ -64,9 +73,9 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <api.Provider client={trpcClient} queryClient={queryClient}>
+      <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
         {props.children}
-      </api.Provider>
+      </TRPCProvider>
     </QueryClientProvider>
   );
 }
@@ -76,3 +85,6 @@ function getBaseUrl() {
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
+
+// https://github.com/t3-oss/create-t3-app/issues/2065
+// https://trpc.io/docs/client/tanstack-react-query/server-components

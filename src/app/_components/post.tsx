@@ -1,19 +1,31 @@
 "use client";
 
+import { useTRPC } from "@/trpc/react";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useState } from "react";
 
-import { api } from "@/trpc/react";
-
 export function LatestPost() {
-  const [latestPost] = api.post.getLatest.useSuspenseQuery();
-
-  const utils = api.useUtils();
   const [name, setName] = useState("");
-  const createPost = api.post.create.useMutation({
-    onSuccess: async () => {
-      await utils.post.invalidate();
-      setName("");
-    },
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+
+  const { data: latestPost } = useSuspenseQuery({
+    ...trpc.post.getLatest.queryOptions(),
+    retry: false,
+  });
+
+  const invalidateLatestPost = () => {
+    void queryClient.invalidateQueries({
+      queryKey: trpc.post.getLatest.queryKey(),
+    });
+  };
+
+  const createPost = useMutation({
+    ...trpc.post.create.mutationOptions(),
   });
 
   return (
@@ -26,7 +38,19 @@ export function LatestPost() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          createPost.mutate({ name });
+          createPost.mutate(
+            { name },
+            {
+              onSuccess: () => {
+                invalidateLatestPost();
+                setName("");
+
+                console.log("Post created successfully", {
+                  data: name,
+                });
+              },
+            },
+          );
         }}
         className="flex flex-col gap-2"
       >
