@@ -1,0 +1,18 @@
+{
+  "initialized": true,
+  "mode": "file-router",
+  "projectName": "shelfbound",
+  "typescript": true,
+  "tailwind": true,
+  "git": true,
+  "packageManager": "pnpm",
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "shadcn",
+    "start",
+    "t3env",
+    "tanstack-query",
+    "eslint"
+  ]
+}
