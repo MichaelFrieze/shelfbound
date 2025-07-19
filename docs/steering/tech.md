@@ -49,13 +49,10 @@
 - **Vite Config**: Path aliases and plugin configuration
 - **TypeScript Config**: Strict type checking configuration
 
-### Code Quality & Testing
+### Code Quality
 
 - **ESLint**: Code linting with TanStack configuration
 - **Prettier**: Code formatting
-- **Vitest**: Fast unit testing framework
-- **React Testing Library**: Component testing utilities
-- **jsdom**: DOM environment for testing
 
 ## Development Workflow
 
@@ -166,8 +163,7 @@ All environment variables are validated at runtime using T3 Env and Zod schemas.
 
 1. **Regular Updates**: Keep dependencies updated for security and performance
 2. **TanStack Ecosystem**: Coordinate updates across TanStack packages
-3. **Testing**: Comprehensive testing before major updates
-4. **Documentation**: Update tech docs when making architectural changes
+3. **Documentation**: Update tech docs when making architectural changes
 
 ---
 

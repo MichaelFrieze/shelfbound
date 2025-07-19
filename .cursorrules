@@ -1,7 +1,11 @@
-# shadcn instructions
+# AI Agent Instructions
 
-Use the latest version of Shadcn to install new components, like this command to add a button component:
+**Primary Directive**: Refer to `AGENTS.md` for comprehensive AI-related instructions and project guidelines.
 
-```bash
-pnpx shadcn@latest add button
-```
+All AI agents working on this project must consult the steering documents in `docs/steering/` before making any code changes or architectural decisions.
+
+## Quick Reference
+
+- Use latest Shadcn components: `pnpx shadcn@latest add button`
+- Follow all guidelines in `AGENTS.md`
+- Consult steering docs: `docs/steering/product.md`, `structure.md`, `tech.md`, `code-style.md`

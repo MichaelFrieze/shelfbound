@@ -61,8 +61,7 @@ src/components/
 1. **File-Based Routing**: Routes automatically generated from file structure
 2. **Component Colocation**: Keep related components close to their usage
 3. **Type Safety**: Full TypeScript coverage with Zod for runtime validation
-4. **Separation of Concerns**: Clear boundaries between UI, data, and business logic
-5. **Modular Integrations**: Third-party services organized in dedicated directories
+4. **Integrations**: Third-party services organized in dedicated directories
 
 ## Import Alias Configuration
 
@@ -82,12 +81,6 @@ src/components/
 - **Router State**: TanStack Router for navigation and URL state
 - **Component State**: React hooks (useState, useReducer) for local UI state
 - **Global State**: TanStack Store (when needed for complex global state)
-
-## Testing Structure
-
-- **Unit Tests**: Component testing with React Testing Library
-- **Integration Tests**: Route and feature testing
-- **E2E Tests**: _To be implemented_
 
 ## Build and Deployment
 
