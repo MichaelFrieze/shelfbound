@@ -1,3 +1,7 @@
+import { DefaultCatchBoundary } from '@/components/default-catch-boundary.tsx'
+import { NotFound } from '@/components/not-found.tsx'
+import { seo } from '@/lib/seo.ts'
+import type { QueryClient } from '@tanstack/react-query'
 import {
   HeadContent,
   Outlet,
@@ -5,12 +9,8 @@ import {
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
 import TanStackQueryLayout from '../integrations/tanstack-query/layout.tsx'
-
 import appCss from '../styles.css?url'
-
-import type { QueryClient } from '@tanstack/react-query'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -26,9 +26,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
       },
-      {
-        title: 'TanStack Start Starter',
-      },
+      ...seo({
+        title: 'ShelfBound | The best way to find books',
+        description: `ShelfBound is the best way to find books.`,
+      }),
     ],
     links: [
       {
@@ -37,12 +38,17 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
-
+  errorComponent: (props) => {
+    return (
+      <RootDocument>
+        <DefaultCatchBoundary {...props} />
+      </RootDocument>
+    )
+  },
+  notFoundComponent: () => <NotFound />,
   component: () => (
     <RootDocument>
       <Outlet />
-      <TanStackRouterDevtools />
-      <TanStackQueryLayout />
     </RootDocument>
   ),
 })
@@ -55,6 +61,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <TanStackRouterDevtools />
+        <TanStackQueryLayout />
         <Scripts />
       </body>
     </html>
