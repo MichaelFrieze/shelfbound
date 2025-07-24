@@ -95,20 +95,51 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     }
   }, [theme, applyTheme])
 
-  // Add localStorage change listener
+  // Enhanced storage event listener that maintains localStorage consistency
   const handleStorageChange = useCallback(
     (e: StorageEvent) => {
-      if (e.key === 'theme' && e.newValue) {
-        setThemeValue(e.newValue)
-        applyTheme(resolveTheme(e.newValue))
-      } else if (e.key === 'theme' && e.newValue === null) {
-        // Handle deletion - reset to system
-        setThemeValue('system')
-        applyTheme(getSystemTheme())
+      if (e.key === 'theme') {
+        if (e.newValue) {
+          // Theme was changed to a new value
+          setThemeValue(e.newValue)
+          applyTheme(resolveTheme(e.newValue))
+        } else {
+          // Theme was deleted - immediately restore it with current theme
+          const currentTheme = theme // Use current theme state
+          try {
+            localStorage.setItem('theme', currentTheme)
+            // Don't update state since we're restoring the current value
+          } catch (_) {
+            console.error('Local storage not supported')
+          }
+        }
       }
     },
-    [applyTheme],
+    [applyTheme, theme],
   )
+
+  // Also add a more aggressive approach - check localStorage periodically
+  useEffect(() => {
+    // Ensure localStorage always has the theme key
+    const ensureThemeInStorage = () => {
+      try {
+        const storedTheme = localStorage.getItem('theme')
+        if (!storedTheme) {
+          localStorage.setItem('theme', theme)
+        }
+      } catch (_) {
+        // Ignore storage errors
+      }
+    }
+
+    // Check immediately and then periodically
+    ensureThemeInStorage()
+
+    // Optional: Check every few seconds (like next-themes does)
+    const interval = setInterval(ensureThemeInStorage, 1000)
+
+    return () => clearInterval(interval)
+  }, [theme])
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
