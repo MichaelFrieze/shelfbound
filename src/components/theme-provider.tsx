@@ -50,9 +50,16 @@ function resolveTheme(theme: string) {
 
 export function ThemeProvider({ children }: PropsWithChildren) {
   const [theme, setThemeValue] = useState(() => getTheme() || 'system')
+  // Add state to force re-renders when system theme changes
+  const [systemTheme, setSystemTheme] = useState(() => getSystemTheme())
 
-  // Add resolvedTheme as a computed value
-  const resolvedTheme = useMemo(() => resolveTheme(theme), [theme])
+  // Update resolvedTheme to use systemTheme state when theme is 'system'
+  const resolvedTheme = useMemo(() => {
+    if (theme === 'system') {
+      return systemTheme
+    }
+    return theme
+  }, [theme, systemTheme])
 
   // Add isDark as a computed value
   const isDark = useMemo(() => resolvedTheme === 'dark', [resolvedTheme])
@@ -75,21 +82,46 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   )
 
   const toggleTheme = useCallback(() => {
-    const newTheme = resolveTheme(theme) === 'dark' ? 'light' : 'dark'
+    const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark'
     setTheme(newTheme)
-  }, [theme, setTheme])
+  }, [resolvedTheme, setTheme])
 
+  // Update system theme change handler to update state
   const handleSystemThemeChanged = useCallback(() => {
+    const newSystemTheme = getSystemTheme()
+    setSystemTheme(newSystemTheme)
     if (theme === 'system') {
-      return applyTheme(getSystemTheme())
+      applyTheme(newSystemTheme)
     }
   }, [theme, applyTheme])
+
+  // Add localStorage change listener
+  const handleStorageChange = useCallback(
+    (e: StorageEvent) => {
+      if (e.key === 'theme' && e.newValue) {
+        setThemeValue(e.newValue)
+        applyTheme(resolveTheme(e.newValue))
+      } else if (e.key === 'theme' && e.newValue === null) {
+        // Handle deletion - reset to system
+        setThemeValue('system')
+        applyTheme(getSystemTheme())
+      }
+    },
+    [applyTheme],
+  )
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
     media.addEventListener('change', handleSystemThemeChanged)
-    return () => media.removeEventListener('change', handleSystemThemeChanged)
-  }, [handleSystemThemeChanged])
+
+    // Add storage event listener for manual localStorage changes
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      media.removeEventListener('change', handleSystemThemeChanged)
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [handleSystemThemeChanged, handleStorageChange])
 
   const contextValue = useMemo(
     () => ({ theme, resolvedTheme, isDark, setTheme, toggleTheme }),
