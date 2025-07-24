@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@fontsource-variable/geist':
+        specifier: ^5.2.6
+        version: 5.2.6
+      '@fontsource-variable/geist-mono':
+        specifier: ^5.2.6
+        version: 5.2.6
+      '@fontsource-variable/merriweather':
+        specifier: ^5.2.4
+        version: 5.2.4
       '@radix-ui/react-slot':
         specifier: ^1.2.3
         version: 1.2.3(@types/react@19.1.8)(react@19.1.0)
@@ -666,6 +675,15 @@ packages:
 
   '@fastify/busboy@3.1.1':
     resolution: {integrity: sha512-5DGmA8FTdB2XbDeEwc/5ZXBl6UbBAyBOOLlPuBnZ/N1SwdH9Ii+cOX3tBROlDgcTXxjOYnLMVoKk9+FXAw0CJw==}
+
+  '@fontsource-variable/geist-mono@5.2.6':
+    resolution: {integrity: sha512-vw6T9JGTrYJ980bn7W8iTPhe2jVK5ifunVs7xh9dfTVArjDSkJs03JjeZrH5LKEpGABLXSlSlNU57HRm4tmFMg==}
+
+  '@fontsource-variable/geist@5.2.6':
+    resolution: {integrity: sha512-Bt9pdD55Fojq4h9yFKQAzh5+Xj4tKFpwbcDzK6t5PPSH2GrjPoPqm6N8y+tK6vzwKZ9hHyaOz/tAbO9cQd9UFQ==}
+
+  '@fontsource-variable/merriweather@5.2.4':
+    resolution: {integrity: sha512-yIEZy+RLRn1wbr4PTlwu0pi1zYAd6z+t4nloP/r164WPjsL6HXL06xUVsnZYA7/f5Fa1OuoU+6EA3sJsZXYO7A==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -4781,6 +4799,12 @@ snapshots:
       levn: 0.4.1
 
   '@fastify/busboy@3.1.1': {}
+
+  '@fontsource-variable/geist-mono@5.2.6': {}
+
+  '@fontsource-variable/geist@5.2.6': {}
+
+  '@fontsource-variable/merriweather@5.2.4': {}
 
   '@humanfs/core@0.19.1': {}
 

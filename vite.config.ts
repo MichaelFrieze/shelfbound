@@ -5,6 +5,9 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
 const config = defineConfig({
+  // build: {
+  //   sourcemap: true,
+  // },
   plugins: [
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
