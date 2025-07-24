@@ -1,3 +1,5 @@
+import { tryCatch } from '@/lib/try-catch'
+import type { ErrorComponentProps } from '@tanstack/react-router'
 import {
   ErrorComponent,
   Link,
@@ -5,9 +7,9 @@ import {
   useMatch,
   useRouter,
 } from '@tanstack/react-router'
-import type { ErrorComponentProps } from '@tanstack/react-router'
+import { Button } from './ui/button'
 
-export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
+export function DefaultCatchBoundary({ error, reset }: ErrorComponentProps) {
   const router = useRouter()
   const isRoot = useMatch({
     strict: false,
@@ -20,32 +22,44 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
     <div className="min-w-0 flex-1 p-4 flex flex-col items-center justify-center gap-6">
       <ErrorComponent error={error} />
       <div className="flex gap-2 items-center flex-wrap">
-        <button
-          onClick={() => {
-            router.invalidate()
-          }}
-          className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+        <Button
+          onClick={reset}
+          className="px-2 py-1 font-extrabold cursor-pointer"
+          variant="outline"
         >
           Try Again
-        </button>
+        </Button>
+        <Button
+          onClick={async () => {
+            const result = await tryCatch(router.invalidate())
+
+            if (result.error) {
+              console.warn('Failed to invalidate data:', result.error)
+            }
+
+            reset()
+          }}
+          className="px-2 py-1 font-extrabold cursor-pointer"
+          variant="outline"
+        >
+          Invalidate Data
+        </Button>
         {isRoot ? (
-          <Link
-            to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
-          >
-            Home
-          </Link>
+          <Button asChild className="px-2 py-1 font-extrabold">
+            <Link to="/">Home</Link>
+          </Button>
         ) : (
-          <Link
-            to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
-            onClick={(e) => {
-              e.preventDefault()
-              window.history.back()
-            }}
-          >
-            Go Back
-          </Link>
+          <Button asChild className="px-2 py-1 font-extrabold">
+            <Link
+              to="/"
+              onClick={(e) => {
+                e.preventDefault()
+                window.history.back()
+              }}
+            >
+              Go Back
+            </Link>
+          </Button>
         )}
       </div>
     </div>
