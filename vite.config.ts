@@ -8,6 +8,9 @@ const config = defineConfig({
   // build: {
   //   sourcemap: true,
   // },
+  optimizeDeps: {
+    entries: ['src/**/*.tsx', 'src/**/*.ts'],
+  },
   plugins: [
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],

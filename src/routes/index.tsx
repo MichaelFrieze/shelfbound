@@ -1,11 +1,12 @@
+import { ModeToggle } from '@/components/mode-toggle'
 import { Button } from '@/components/ui/button'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
   component: App,
-  loader: async () => {
-    throw new Error('test')
-  },
+  // loader: async () => {
+  //   throw new Error('test')
+  // },
 })
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Button variant="outline" className="w-40">
         Click me
       </Button>
+      <ModeToggle />
     </div>
   )
 }
