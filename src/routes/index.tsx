@@ -16,7 +16,7 @@ function App() {
       <Button variant="outline" className="w-40">
         Click me
       </Button>
-      <ModeToggle />
+      <ModeToggle size="lg" variant="ghost" />
     </div>
   )
 }
