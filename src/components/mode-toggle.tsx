@@ -1,5 +1,12 @@
 import type { buttonVariants } from '@/components/ui/button'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import type { VariantProps } from 'class-variance-authority'
@@ -83,5 +90,23 @@ export function ModeToggle({
       {isDark ? <SunIcon /> : <MoonIcon />}
       <span className="sr-only">Toggle theme</span>
     </Button>
+  )
+}
+
+// Dropdown toggle
+export function ThemeDropdown() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <Select value={theme} onValueChange={setTheme}>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Select theme" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="light">Light</SelectItem>
+        <SelectItem value="dark">Dark</SelectItem>
+        <SelectItem value="system">System</SelectItem>
+      </SelectContent>
+    </Select>
   )
 }

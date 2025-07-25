@@ -1,4 +1,4 @@
-import { ModeToggle } from '@/components/mode-toggle'
+import { ModeToggle, ThemeDropdown } from '@/components/mode-toggle'
 import { Button } from '@/components/ui/button'
 import { createFileRoute } from '@tanstack/react-router'
 
@@ -14,6 +14,7 @@ function App() {
         Click me
       </Button>
       <ModeToggle size="lg" variant="ghost" />
+      <ThemeDropdown />
     </div>
   )
 }
