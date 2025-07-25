@@ -24,8 +24,8 @@ export function useTheme() {
   return themeContext
 }
 
-function getSystemTheme() {
-  if (typeof window === 'undefined') return 'light' // Default for SSR
+function getSystemTheme(defaultTheme = 'light') {
+  if (typeof window === 'undefined') return defaultTheme
   return window.matchMedia('(prefers-color-scheme: dark)').matches
     ? 'dark'
     : 'light'

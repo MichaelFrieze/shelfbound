@@ -16,7 +16,7 @@ function setThemeScript() {
 export function ThemeScript() {
   return (
     <script
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: Needed to avoid FOUC
+      // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{
         __html: `(${setThemeScript.toString()})()`,
       }}
