@@ -8,6 +8,10 @@ import {
   type PropsWithChildren,
 } from 'react'
 
+interface ThemeProviderProps extends PropsWithChildren {
+  defaultTheme?: 'light' | 'dark' | 'system'
+}
+
 const ThemeContext = createContext<{
   theme: string
   resolvedTheme: string
@@ -48,14 +52,20 @@ function resolveTheme(theme: string | null) {
   return theme
 }
 
-export function ThemeProvider({ children }: PropsWithChildren) {
+export function ThemeProvider({
+  children,
+  defaultTheme = 'system',
+}: ThemeProviderProps) {
   const storedTheme = getTheme()
-  const [theme, setThemeValue] = useState(() => storedTheme || 'system')
+  const [theme, setThemeValue] = useState(() => storedTheme || defaultTheme)
   const [systemTheme, setSystemTheme] = useState(() => getSystemTheme())
   const [hasUserInteracted, setHasUserInteracted] = useState(() => {
     // User has interacted if there's a stored theme
     return storedTheme !== null
   })
+
+  // Generate the theme script that will run immediately
+  const themeScript = `!function(){try{var d=document.documentElement,c=d.classList;c.remove('light','dark');var e=localStorage.getItem('theme')||'${defaultTheme}';if('dark'===e||(e==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches))c.add('dark');else c.add('light')}catch(t){}}()`
 
   // Update resolvedTheme to use systemTheme state when theme is 'system'
   const resolvedTheme = useMemo(() => {
@@ -117,14 +127,20 @@ export function ThemeProvider({ children }: PropsWithChildren) {
         } else if (hasUserInteracted) {
           // Only restore if user has previously interacted
           try {
-            localStorage.setItem('theme', 'system')
+            localStorage.setItem('theme', defaultTheme)
           } catch (_) {}
-          setThemeValue('system')
-          applyTheme(getSystemTheme())
+          setThemeValue(defaultTheme)
+
+          // Apply the correct resolved theme
+          if (defaultTheme === 'system') {
+            applyTheme(getSystemTheme())
+          } else {
+            applyTheme(defaultTheme)
+          }
         }
       }
     },
-    [applyTheme, hasUserInteracted],
+    [applyTheme, hasUserInteracted, defaultTheme],
   )
 
   useEffect(() => {
@@ -138,8 +154,6 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     }
   }, [handleSystemThemeChanged, handleStorageChange])
 
-  // Remove the periodic storage check entirely for lazy behavior
-
   const contextValue = useMemo(
     () => ({
       theme,
@@ -151,5 +165,10 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     [theme, resolvedTheme, isDark, setTheme, toggleTheme],
   )
 
-  return <ThemeContext value={contextValue}>{children}</ThemeContext>
+  return (
+    <>
+      <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      <ThemeContext value={contextValue}>{children}</ThemeContext>
+    </>
+  )
 }

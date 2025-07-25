@@ -2,7 +2,6 @@ import { DefaultCatchBoundary } from '@/components/default-catch-boundary.tsx'
 import { NotFound } from '@/components/not-found.tsx'
 import { ThemeProvider } from '@/components/theme-provider.tsx'
 import { seo } from '@/lib/seo.ts'
-import { ThemeScript } from '@/lib/theme-script.tsx'
 import type { QueryClient } from '@tanstack/react-query'
 import {
   HeadContent,
@@ -60,10 +59,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
-        <ThemeScript />
       </head>
       <body>
-        <ThemeProvider>
+        <ThemeProvider defaultTheme="light">
           {children}
           <TanStackRouterDevtools />
           <TanStackQueryLayout />
