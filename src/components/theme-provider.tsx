@@ -104,14 +104,15 @@ export function ThemeProvider({ children }: PropsWithChildren) {
           setThemeValue(e.newValue)
           applyTheme(resolveTheme(e.newValue))
         } else {
-          // Theme was deleted - immediately restore it with current theme
-          const currentTheme = theme // Use current theme state
+          // Theme was deleted - immediately restore with 'system' as default
           try {
-            localStorage.setItem('theme', currentTheme)
-            // Don't update state since we're restoring the current value
+            localStorage.setItem('theme', 'system')
           } catch (_) {
             console.error('Local storage not supported')
           }
+          // Update state to system theme
+          setThemeValue('system')
+          applyTheme(getSystemTheme())
         }
       }
     },
@@ -125,7 +126,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
       try {
         const storedTheme = localStorage.getItem('theme')
         if (!storedTheme) {
-          localStorage.setItem('theme', theme)
+          localStorage.setItem('theme', 'system')
         }
       } catch (_) {
         // Ignore storage errors
