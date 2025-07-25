@@ -34,26 +34,27 @@ function getSystemTheme() {
 function getTheme() {
   if (typeof window === 'undefined') return null
   try {
-    return localStorage.getItem('theme') || 'system'
+    return localStorage.getItem('theme') // Return null if not set
   } catch (_) {
     console.error('Local storage not supported')
-    return 'system'
+    return null
   }
 }
 
-function resolveTheme(theme: string) {
-  if (theme === 'system') {
+function resolveTheme(theme: string | null) {
+  if (!theme || theme === 'system') {
     return getSystemTheme()
   }
   return theme
 }
 
 export function ThemeProvider({ children }: PropsWithChildren) {
-  const [theme, setThemeValue] = useState(() => getTheme() || 'system')
+  const storedTheme = getTheme()
+  const [theme, setThemeValue] = useState(() => storedTheme || 'system')
   const [systemTheme, setSystemTheme] = useState(() => getSystemTheme())
   const [hasUserInteracted, setHasUserInteracted] = useState(() => {
-    // Check if user has previously set a theme
-    return getTheme() !== null
+    // User has interacted if there's a stored theme
+    return storedTheme !== null
   })
 
   // Update resolvedTheme to use systemTheme state when theme is 'system'
@@ -80,8 +81,8 @@ export function ThemeProvider({ children }: PropsWithChildren) {
       setThemeValue(newTheme)
       applyTheme(resolveTheme(newTheme))
 
-      // Only write to localStorage if user initiated or has previously interacted
-      if (userInitiated || hasUserInteracted) {
+      // Only write to localStorage if user initiated
+      if (userInitiated) {
         setHasUserInteracted(true)
         try {
           localStorage.setItem('theme', newTheme)
@@ -90,7 +91,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
         }
       }
     },
-    [applyTheme, hasUserInteracted],
+    [applyTheme],
   )
 
   const toggleTheme = useCallback(() => {
