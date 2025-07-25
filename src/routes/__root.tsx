@@ -56,12 +56,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        <ThemeProvider defaultTheme="light">
+        <ThemeProvider>
           {children}
           <TanStackRouterDevtools />
           <TanStackQueryLayout />

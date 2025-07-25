@@ -23,7 +23,14 @@ export function ModeToggle({
   size = 'icon',
 }: ModeToggleProps) {
   const [mounted, setMounted] = useState(false)
-  const { toggleTheme, isDark } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
+
+  const isDark = resolvedTheme === 'dark'
+
+  const toggleTheme = () => {
+    const newTheme = isDark ? 'light' : 'dark'
+    setTheme(newTheme)
+  }
 
   useEffect(() => setMounted(true), [])
 

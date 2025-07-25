@@ -1,174 +1,106 @@
-import {
-  createContext,
-  use,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type PropsWithChildren,
-} from 'react'
+import { FunctionOnce } from '@/lib/function-once'
+import { createContext, use, useEffect, useMemo, useState } from 'react'
 
-interface ThemeProviderProps extends PropsWithChildren {
-  defaultTheme?: 'light' | 'dark' | 'system'
+export type ResolvedTheme = 'dark' | 'light'
+export type Theme = ResolvedTheme | 'system'
+
+interface ThemeProviderProps {
+  children: React.ReactNode
+  defaultTheme?: Theme
+  storageKey?: string
 }
 
-const ThemeContext = createContext<{
-  theme: string
-  resolvedTheme: string
-  isDark: boolean
-  setTheme: (newTheme: string) => void
-  toggleTheme: () => void
-} | null>(null)
-
-export function useTheme() {
-  const themeContext = use(ThemeContext)
-  if (!themeContext) {
-    throw new Error('Not in ThemeProvider')
-  }
-  return themeContext
+interface ThemeProviderState {
+  theme: Theme
+  resolvedTheme: ResolvedTheme
+  setTheme: (theme: Theme) => void
 }
 
-function getSystemTheme(defaultTheme = 'light') {
-  if (typeof window === 'undefined') return defaultTheme
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+const initialState: ThemeProviderState = {
+  theme: 'system',
+  resolvedTheme: 'light',
+  setTheme: () => null,
 }
 
-function getTheme() {
-  if (typeof window === 'undefined') return null
-  try {
-    return localStorage.getItem('theme') // Return null if not set
-  } catch (_) {
-    console.error('Local storage not supported')
-    return null
-  }
-}
+const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
-function resolveTheme(theme: string | null) {
-  if (!theme || theme === 'system') {
-    return getSystemTheme()
-  }
-  return theme
-}
+const isBrowser = typeof window !== 'undefined'
 
 export function ThemeProvider({
   children,
   defaultTheme = 'system',
+  storageKey = 'theme',
 }: ThemeProviderProps) {
-  const storedTheme = getTheme()
-  const [theme, setThemeValue] = useState(() => storedTheme || defaultTheme)
-  const [systemTheme, setSystemTheme] = useState(() => getSystemTheme())
-  const [hasUserInteracted, setHasUserInteracted] = useState(() => {
-    // User has interacted if there's a stored theme
-    return storedTheme !== null
-  })
-
-  // Generate the theme script that will run immediately
-  const themeScript = `!function(){try{var d=document.documentElement,c=d.classList;c.remove('light','dark');var e=localStorage.getItem('theme')||'${defaultTheme}';if('dark'===e||(e==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches))c.add('dark');else c.add('light')}catch(t){}}()`
-
-  // Update resolvedTheme to use systemTheme state when theme is 'system'
-  const resolvedTheme = useMemo(() => {
-    if (theme === 'system') {
-      return systemTheme
-    }
-    return theme
-  }, [theme, systemTheme])
-
-  const isDark = useMemo(() => resolvedTheme === 'dark', [resolvedTheme])
-
-  const applyTheme = useCallback((newTheme: string) => {
-    document.documentElement.classList.toggle('dark', newTheme === 'dark')
-  }, [])
-
-  // Apply theme on mount without writing to localStorage
-  useEffect(() => {
-    applyTheme(resolvedTheme)
-  }, [applyTheme, resolvedTheme])
-
-  const setTheme = useCallback(
-    (newTheme: string, userInitiated = false) => {
-      setThemeValue(newTheme)
-      applyTheme(resolveTheme(newTheme))
-
-      // Only write to localStorage if user initiated
-      if (userInitiated) {
-        setHasUserInteracted(true)
-        try {
-          localStorage.setItem('theme', newTheme)
-        } catch (_) {
-          console.error('Local storage not supported')
-        }
-      }
-    },
-    [applyTheme],
+  const [theme, setTheme] = useState<Theme>(
+    () =>
+      (isBrowser
+        ? (localStorage.getItem(storageKey) as Theme)
+        : defaultTheme) || defaultTheme,
   )
-
-  const toggleTheme = useCallback(() => {
-    const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark'
-    setTheme(newTheme, true) // Mark as user-initiated
-  }, [resolvedTheme, setTheme])
-
-  const handleSystemThemeChanged = useCallback(() => {
-    const newSystemTheme = getSystemTheme()
-    setSystemTheme(newSystemTheme)
-    if (theme === 'system') {
-      applyTheme(newSystemTheme)
-    }
-  }, [theme, applyTheme])
-
-  const handleStorageChange = useCallback(
-    (e: StorageEvent) => {
-      if (e.key === 'theme') {
-        if (e.newValue) {
-          setThemeValue(e.newValue)
-          applyTheme(resolveTheme(e.newValue))
-          setHasUserInteracted(true)
-        } else if (hasUserInteracted) {
-          // Only restore if user has previously interacted
-          try {
-            localStorage.setItem('theme', defaultTheme)
-          } catch (_) {}
-          setThemeValue(defaultTheme)
-
-          // Apply the correct resolved theme
-          if (defaultTheme === 'system') {
-            applyTheme(getSystemTheme())
-          } else {
-            applyTheme(defaultTheme)
-          }
-        }
-      }
-    },
-    [applyTheme, hasUserInteracted, defaultTheme],
-  )
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light')
 
   useEffect(() => {
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
-    media.addEventListener('change', handleSystemThemeChanged)
-    window.addEventListener('storage', handleStorageChange)
+    const root = window.document.documentElement
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
-    return () => {
-      media.removeEventListener('change', handleSystemThemeChanged)
-      window.removeEventListener('storage', handleStorageChange)
+    function updateTheme() {
+      root.classList.remove('light', 'dark')
+
+      if (theme === 'system') {
+        const systemTheme = mediaQuery.matches ? 'dark' : 'light'
+        setResolvedTheme(systemTheme)
+        root.classList.add(systemTheme)
+        return
+      }
+
+      setResolvedTheme(theme as ResolvedTheme)
+      root.classList.add(theme)
     }
-  }, [handleSystemThemeChanged, handleStorageChange])
 
-  const contextValue = useMemo(
+    mediaQuery.addEventListener('change', updateTheme)
+    updateTheme()
+
+    return () => mediaQuery.removeEventListener('change', updateTheme)
+  }, [theme])
+
+  const value = useMemo(
     () => ({
       theme,
       resolvedTheme,
-      isDark,
-      setTheme: (theme: string) => setTheme(theme, true),
-      toggleTheme,
+      setTheme: (theme: Theme) => {
+        localStorage.setItem(storageKey, theme)
+        setTheme(theme)
+      },
     }),
-    [theme, resolvedTheme, isDark, setTheme, toggleTheme],
+    [theme, resolvedTheme, storageKey],
   )
 
   return (
-    <>
-      <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      <ThemeContext value={contextValue}>{children}</ThemeContext>
-    </>
+    <ThemeProviderContext value={value}>
+      <FunctionOnce param={storageKey}>
+        {(storageKey) => {
+          const theme: string | null = localStorage.getItem(storageKey)
+
+          if (
+            theme === 'dark' ||
+            ((theme === null || theme === 'system') &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches)
+          ) {
+            document.documentElement.classList.add('dark')
+          }
+        }}
+      </FunctionOnce>
+      {children}
+    </ThemeProviderContext>
   )
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useTheme() {
+  const context = use(ThemeProviderContext)
+
+  if (context === undefined)
+    throw new Error('useTheme must be used within a ThemeProvider')
+
+  return context
 }
