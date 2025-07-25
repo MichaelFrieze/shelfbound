@@ -61,7 +61,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ThemeProvider>
+        <ThemeProvider defaultTheme="system" storageKey="shelfbound.theme">
           {children}
           <TanStackRouterDevtools />
           <TanStackQueryLayout />

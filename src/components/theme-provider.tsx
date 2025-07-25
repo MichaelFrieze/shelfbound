@@ -77,13 +77,15 @@ export function ThemeProvider({
 
   return (
     <ThemeProviderContext value={value}>
-      <FunctionOnce param={storageKey}>
-        {(storageKey) => {
+      <FunctionOnce param={{ storageKey, defaultTheme }}>
+        {({ storageKey, defaultTheme }) => {
           const theme: string | null = localStorage.getItem(storageKey)
 
           if (
             theme === 'dark' ||
-            ((theme === null || theme === 'system') &&
+            (theme === null && defaultTheme === 'dark') ||
+            ((theme === 'system' ||
+              (theme === null && defaultTheme === 'system')) &&
               window.matchMedia('(prefers-color-scheme: dark)').matches)
           ) {
             document.documentElement.classList.add('dark')
