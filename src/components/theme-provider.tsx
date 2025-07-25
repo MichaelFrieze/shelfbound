@@ -8,6 +8,8 @@ interface ThemeProviderProps {
   children: React.ReactNode
   defaultTheme?: Theme
   storageKey?: string
+  disableTransitionOnChange?: boolean
+  enableColorScheme?: boolean
 }
 
 interface ThemeProviderState {
@@ -30,6 +32,8 @@ export function ThemeProvider({
   children,
   defaultTheme = 'system',
   storageKey = 'theme',
+  disableTransitionOnChange = false,
+  enableColorScheme = false,
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
     () =>
@@ -39,29 +43,61 @@ export function ThemeProvider({
   )
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light')
 
+  // Helper function to disable transitions temporarily
+  const withoutTransitions = (fn: () => void) => {
+    if (!disableTransitionOnChange) {
+      fn()
+      return
+    }
+
+    const css = document.createElement('style')
+    css.textContent = '*, *::before, *::after { transition: none !important; }'
+    document.head.appendChild(css)
+
+    fn()
+
+    // Force reflow
+    document.body.offsetHeight
+
+    // Re-enable transitions
+    document.head.removeChild(css)
+  }
+
   useEffect(() => {
     const root = window.document.documentElement
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
     function updateTheme() {
-      root.classList.remove('light', 'dark')
+      withoutTransitions(() => {
+        root.classList.remove('light', 'dark')
 
-      if (theme === 'system') {
-        const systemTheme = mediaQuery.matches ? 'dark' : 'light'
-        setResolvedTheme(systemTheme)
-        root.classList.add(systemTheme)
-        return
-      }
+        if (theme === 'system') {
+          const systemTheme = mediaQuery.matches ? 'dark' : 'light'
+          setResolvedTheme(systemTheme)
+          root.classList.add(systemTheme)
 
-      setResolvedTheme(theme as ResolvedTheme)
-      root.classList.add(theme)
+          // Set color-scheme if enabled
+          if (enableColorScheme) {
+            root.style.setProperty('color-scheme', systemTheme)
+          }
+          return
+        }
+
+        setResolvedTheme(theme as ResolvedTheme)
+        root.classList.add(theme)
+
+        // Set color-scheme if enabled
+        if (enableColorScheme) {
+          root.style.setProperty('color-scheme', theme)
+        }
+      })
     }
 
     mediaQuery.addEventListener('change', updateTheme)
     updateTheme()
 
     return () => mediaQuery.removeEventListener('change', updateTheme)
-  }, [theme])
+  }, [theme, disableTransitionOnChange, enableColorScheme])
 
   const value = useMemo(
     () => ({
