@@ -50,8 +50,11 @@ function resolveTheme(theme: string) {
 
 export function ThemeProvider({ children }: PropsWithChildren) {
   const [theme, setThemeValue] = useState(() => getTheme() || 'system')
-  // Add state to force re-renders when system theme changes
   const [systemTheme, setSystemTheme] = useState(() => getSystemTheme())
+  const [hasUserInteracted, setHasUserInteracted] = useState(() => {
+    // Check if user has previously set a theme
+    return getTheme() !== null
+  })
 
   // Update resolvedTheme to use systemTheme state when theme is 'system'
   const resolvedTheme = useMemo(() => {
@@ -61,32 +64,40 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     return theme
   }, [theme, systemTheme])
 
-  // Add isDark as a computed value
   const isDark = useMemo(() => resolvedTheme === 'dark', [resolvedTheme])
 
   const applyTheme = useCallback((newTheme: string) => {
     document.documentElement.classList.toggle('dark', newTheme === 'dark')
   }, [])
 
+  // Apply theme on mount without writing to localStorage
+  useEffect(() => {
+    applyTheme(resolvedTheme)
+  }, [applyTheme, resolvedTheme])
+
   const setTheme = useCallback(
-    (newTheme: string) => {
+    (newTheme: string, userInitiated = false) => {
       setThemeValue(newTheme)
       applyTheme(resolveTheme(newTheme))
-      try {
-        localStorage.setItem('theme', newTheme)
-      } catch (_) {
-        console.error('Local storage not supported')
+
+      // Only write to localStorage if user initiated or has previously interacted
+      if (userInitiated || hasUserInteracted) {
+        setHasUserInteracted(true)
+        try {
+          localStorage.setItem('theme', newTheme)
+        } catch (_) {
+          console.error('Local storage not supported')
+        }
       }
     },
-    [applyTheme],
+    [applyTheme, hasUserInteracted],
   )
 
   const toggleTheme = useCallback(() => {
     const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark'
-    setTheme(newTheme)
+    setTheme(newTheme, true) // Mark as user-initiated
   }, [resolvedTheme, setTheme])
 
-  // Update system theme change handler to update state
   const handleSystemThemeChanged = useCallback(() => {
     const newSystemTheme = getSystemTheme()
     setSystemTheme(newSystemTheme)
@@ -95,58 +106,29 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     }
   }, [theme, applyTheme])
 
-  // Enhanced storage event listener that maintains localStorage consistency
   const handleStorageChange = useCallback(
     (e: StorageEvent) => {
       if (e.key === 'theme') {
         if (e.newValue) {
-          // Theme was changed to a new value
           setThemeValue(e.newValue)
           applyTheme(resolveTheme(e.newValue))
-        } else {
-          // Theme was deleted - immediately restore with 'system' as default
+          setHasUserInteracted(true)
+        } else if (hasUserInteracted) {
+          // Only restore if user has previously interacted
           try {
             localStorage.setItem('theme', 'system')
-          } catch (_) {
-            console.error('Local storage not supported')
-          }
-          // Update state to system theme
+          } catch (_) {}
           setThemeValue('system')
           applyTheme(getSystemTheme())
         }
       }
     },
-    [applyTheme, theme],
+    [applyTheme, hasUserInteracted],
   )
-
-  // Also add a more aggressive approach - check localStorage periodically
-  useEffect(() => {
-    // Ensure localStorage always has the theme key
-    const ensureThemeInStorage = () => {
-      try {
-        const storedTheme = localStorage.getItem('theme')
-        if (!storedTheme) {
-          localStorage.setItem('theme', 'system')
-        }
-      } catch (_) {
-        // Ignore storage errors
-      }
-    }
-
-    // Check immediately and then periodically
-    ensureThemeInStorage()
-
-    // Optional: Check every few seconds (like next-themes does)
-    const interval = setInterval(ensureThemeInStorage, 1000)
-
-    return () => clearInterval(interval)
-  }, [theme])
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
     media.addEventListener('change', handleSystemThemeChanged)
-
-    // Add storage event listener for manual localStorage changes
     window.addEventListener('storage', handleStorageChange)
 
     return () => {
@@ -155,8 +137,16 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     }
   }, [handleSystemThemeChanged, handleStorageChange])
 
+  // Remove the periodic storage check entirely for lazy behavior
+
   const contextValue = useMemo(
-    () => ({ theme, resolvedTheme, isDark, setTheme, toggleTheme }),
+    () => ({
+      theme,
+      resolvedTheme,
+      isDark,
+      setTheme: (theme: string) => setTheme(theme, true),
+      toggleTheme,
+    }),
     [theme, resolvedTheme, isDark, setTheme, toggleTheme],
   )
 
