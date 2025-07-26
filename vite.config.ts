@@ -12,6 +12,12 @@ const config = defineConfig({
   //   entries: ['src/**/*.tsx', 'src/**/*.ts'],
   //   exclude: ['@radix-ui/react-select'],
   // },
+  optimizeDeps: {
+    exclude: [
+      '@tanstack/react-router-devtools',
+      '@tanstack/react-query-devtools',
+    ],
+  },
   plugins: [
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
