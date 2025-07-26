@@ -1,5 +1,6 @@
-import { FunctionOnce } from '@/lib/function-once'
 import { createContext, use, useEffect, useMemo, useState } from 'react'
+
+import { FunctionOnce } from '@/lib/function-once'
 
 export type ResolvedTheme = 'dark' | 'light'
 export type Theme = ResolvedTheme | 'system'
@@ -79,7 +80,7 @@ export function ThemeProvider({
           return
         }
 
-        setResolvedTheme(theme as ResolvedTheme)
+        setResolvedTheme(theme)
         root.classList.add(theme)
 
         if (enableColorScheme) {
