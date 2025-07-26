@@ -1,4 +1,3 @@
-import { tryCatch } from '@/lib/try-catch'
 import type { ErrorComponentProps } from '@tanstack/react-router'
 import {
   ErrorComponent,
@@ -7,6 +6,9 @@ import {
   useMatch,
   useRouter,
 } from '@tanstack/react-router'
+
+import { tryCatch } from '@/lib/try-catch'
+
 import { Button } from './ui/button'
 
 export function DefaultCatchBoundary({ error, reset }: ErrorComponentProps) {
