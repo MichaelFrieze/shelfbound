@@ -98,9 +98,9 @@ export function ThemeProvider({
     () => ({
       theme,
       resolvedTheme,
-      setTheme: (theme: Theme) => {
-        localStorage.setItem(storageKey, theme)
-        setTheme(theme)
+      setTheme: (newTheme: Theme) => {
+        localStorage.setItem(storageKey, newTheme)
+        setTheme(newTheme)
       },
     }),
     [theme, resolvedTheme, storageKey],
@@ -109,14 +109,14 @@ export function ThemeProvider({
   return (
     <ThemeProviderContext value={value}>
       <FunctionOnce param={{ storageKey, defaultTheme }}>
-        {({ storageKey, defaultTheme }) => {
-          const theme: string | null = localStorage.getItem(storageKey)
+        {({ storageKey: key, defaultTheme: defaultThemeValue }) => {
+          const storedTheme: string | null = localStorage.getItem(key)
 
           if (
-            theme === 'dark' ||
-            (theme === null && defaultTheme === 'dark') ||
-            ((theme === 'system' ||
-              (theme === null && defaultTheme === 'system')) &&
+            storedTheme === 'dark' ||
+            (storedTheme === null && defaultThemeValue === 'dark') ||
+            ((storedTheme === 'system' ||
+              (storedTheme === null && defaultThemeValue === 'system')) &&
               window.matchMedia('(prefers-color-scheme: dark)').matches)
           ) {
             document.documentElement.classList.add('dark')

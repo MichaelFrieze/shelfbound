@@ -1,3 +1,7 @@
+import type { VariantProps } from 'class-variance-authority'
+import { MoonIcon, SunIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
 import type { buttonVariants } from '@/components/ui/button'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,9 +13,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import type { VariantProps } from 'class-variance-authority'
-import { MoonIcon, SunIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
+
 import { useTheme } from './theme-provider'
 
 interface ModeToggleProps extends VariantProps<typeof buttonVariants> {
