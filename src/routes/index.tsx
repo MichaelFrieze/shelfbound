@@ -1,6 +1,7 @@
+import { createFileRoute } from '@tanstack/react-router'
+
 import { ModeToggle, ThemeDropdown } from '@/components/mode-toggle'
 import { Button } from '@/components/ui/button'
-import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
   component: App,
