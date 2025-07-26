@@ -36,12 +36,11 @@ export function ThemeProvider({
   disableTransitionOnChange = false,
   enableColorScheme = false,
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () =>
-      (isBrowser
-        ? (localStorage.getItem(storageKey) as Theme)
-        : defaultTheme) || defaultTheme,
-  )
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (!isBrowser) return defaultTheme
+    const stored = localStorage.getItem(storageKey)
+    return stored ? (stored as Theme) : defaultTheme
+  })
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light')
 
   const withoutTransitions = (fn: () => void) => {
@@ -129,13 +128,8 @@ export function ThemeProvider({
   )
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme() {
   const context = use(ThemeProviderContext)
-
-  if (context === undefined)
-    throw new Error('useTheme must be used within a ThemeProvider')
-
   return context
 }
 

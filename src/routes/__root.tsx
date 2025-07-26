@@ -1,7 +1,3 @@
-import { DefaultCatchBoundary } from '@/components/default-catch-boundary.tsx'
-import { NotFound } from '@/components/not-found.tsx'
-import { ThemeProvider } from '@/components/theme-provider.tsx'
-import { seo } from '@/lib/seo.ts'
 import type { QueryClient } from '@tanstack/react-query'
 import {
   HeadContent,
@@ -10,6 +6,12 @@ import {
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+
+import { DefaultCatchBoundary } from '@/components/default-catch-boundary.tsx'
+import { NotFound } from '@/components/not-found.tsx'
+import { ThemeProvider } from '@/components/theme-provider.tsx'
+import { seo } from '@/lib/seo.ts'
+
 import TanStackQueryLayout from '../integrations/tanstack-query/layout.tsx'
 import appCss from '../styles.css?url'
 
