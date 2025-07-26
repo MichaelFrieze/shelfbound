@@ -10,8 +10,8 @@
   },
   // Import organization settings
   "typescript.preferences.organizeImports": false,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": "never",
-    "source.fixAll.eslint": "explicit"
-  },
+  // "editor.codeActionsOnSave": {
+  //   "source.organizeImports": "never",
+  //   "source.fixAll.eslint": "explicit"
+  // },
 }
