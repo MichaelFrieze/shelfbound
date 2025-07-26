@@ -6,12 +6,15 @@
     "dev": "vite dev --port 3000",
     "start": "node .output/server/index.mjs",
     "build": "vite build",
+    "preview": "pnpm build && pnpm start",
     "serve": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
-    "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache"
+    "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
+    "check": "eslint && tsc --noEmit",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.6",
