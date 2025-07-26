@@ -4,11 +4,9 @@ import { NotFound } from './components/not-found'
 import * as TanstackQuery from './integrations/tanstack-query/root-provider'
 import './styles.css'
 
-// Import the generated route tree
 import { DefaultCatchBoundary } from './components/default-catch-boundary'
 import { routeTree } from './routeTree.gen'
 
-// Create a new router instance
 export const createRouter = () => {
   const router = routerWithQueryClient(
     createTanstackRouter({
@@ -30,7 +28,6 @@ export const createRouter = () => {
   return router
 }
 
-// Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
     router: ReturnType<typeof createRouter>

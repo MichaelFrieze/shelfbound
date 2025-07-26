@@ -43,7 +43,6 @@ export function ThemeProvider({
   )
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light')
 
-  // Helper function to disable transitions temporarily
   const withoutTransitions = (fn: () => void) => {
     if (!disableTransitionOnChange) {
       fn()
@@ -56,10 +55,8 @@ export function ThemeProvider({
 
     fn()
 
-    // Force reflow
     document.body.offsetHeight
 
-    // Re-enable transitions
     document.head.removeChild(css)
   }
 
@@ -76,7 +73,6 @@ export function ThemeProvider({
           setResolvedTheme(systemTheme)
           root.classList.add(systemTheme)
 
-          // Set color-scheme if enabled
           if (enableColorScheme) {
             root.style.setProperty('color-scheme', systemTheme)
           }
@@ -86,7 +82,6 @@ export function ThemeProvider({
         setResolvedTheme(theme as ResolvedTheme)
         root.classList.add(theme)
 
-        // Set color-scheme if enabled
         if (enableColorScheme) {
           root.style.setProperty('color-scheme', theme)
         }
@@ -142,3 +137,5 @@ export function useTheme() {
 
   return context
 }
+
+// This theme provider was inspired by: https://github.com/wannabespace/conar/blob/main/packages/ui/src/theme-provider.tsx
