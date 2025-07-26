@@ -1,7 +1,6 @@
 //  @ts-check
 
 import { tanstackConfig } from '@tanstack/eslint-config'
-// import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
   ...tanstackConfig,
@@ -12,17 +11,13 @@ export default [
       '.output/**',
       'dist/**',
       'node_modules/**',
+      'eslint.config.js',
+      'prettier.config.js',
+      'vite.config.js',
     ],
   },
   {
-    // plugins: {
-    //   'react-refresh': reactRefresh,
-    // },
     rules: {
-      // 'react-refresh/only-export-components': [
-      //   'warn',
-      //   { allowConstantExport: true },
-      // ],
       'import/order': [
         'error',
         {

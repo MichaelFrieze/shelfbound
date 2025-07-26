@@ -8,11 +8,5 @@
   "packageManager": "pnpm",
   "version": 1,
   "framework": "react-cra",
-  "chosenAddOns": [
-    "shadcn",
-    "start",
-    "t3env",
-    "tanstack-query",
-    "eslint"
-  ]
+  "chosenAddOns": ["shadcn", "start", "t3env", "tanstack-query", "eslint"]
 }
